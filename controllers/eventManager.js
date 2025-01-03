@@ -8,30 +8,33 @@ exports.addEvent = async (req, res) => {
                 return res.status(400).json({ message: err.message });
             }
 
-            const { eventName, eventHighlight, dateTime, country, city, location, category, status } = req.body;
+            const { eventName, eventHighlight, dateTime, country, city, location, category, status,providerName,eventDescription,phone,termsTitle,termsDetails,price } = req.body;
 
             // Validate required fields
-            if (!eventName || !eventHighlight || !dateTime) {
-                return res.status(400).json({ message: 'Event name, highlight, and date/time are required.' });
+            if (!eventName  || !phone) {
+                return res.status(400).json({ message: 'Event name, Phone are required.' });
             }
 
             const eventDate = new Date(dateTime);
-            if (eventDate < new Date()) {
-                return res.status(400).json({ message: 'Date cannot be in the past.' });
-            }
 
             const profileImage = req.file ? `/uploads/${req.file.filename}` : '';
 
             const newEvent = new Event({
                 eventName,
                 eventHighlight,
-                dateTime: eventDate,
                 country,
                 city,
                 location,
                 profileImage,
                 category,
                 status: status || 'active',
+                eventDescription,
+                phone,
+                providerName,
+                termsTitle,
+                termsDetails,
+                price
+
             });
 
             await newEvent.save();
@@ -67,30 +70,32 @@ exports.updateEvent = async (req, res) => {
         if (err) {
             return res.status(400).json({ message: "Error uploading file", error: err.message });
         }
-
         try {
             const { id } = req.params;
             
-            const { eventName, eventHighlight, dateTime, country, city, location, category, status } = req.body;
+            const { eventName, eventHighlight, dateTime, country, city, location, category, status,providerName,eventDescription,phone,termsTitle,termsDetails,price } = req.body;
             // Validate required fields
-            if (!eventName || !eventHighlight || !dateTime) {
-                return res.status(400).json({ message: 'Event name, highlight, and date/time are required.' });
+            if (!eventName  || !phone) {
+                return res.status(400).json({ message: 'Event name, Phone are required.' });
             }
-            
-            const eventDate = new Date(dateTime);
-            // if (eventDate < new Date()) {
-            //     return res.status(400).json({ message: 'Date cannot be in the past.' });
-            // }
+           
             // Prepare update object
             const updateData = {
                 eventName,
                 eventHighlight,
-                dateTime: eventDate,
+                dateTime: dateTime || [],
                 country,
                 city,
                 location,
                 category,
                 status: status || 'active',
+                providerName,
+                eventDescription,
+                phone,
+                termsTitle,
+                termsDetails,
+                price
+
             };
             // If a file is uploaded, add its path to the update data
             if (req.file) {

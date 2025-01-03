@@ -1,10 +1,13 @@
 const express = require('express');
 const router = express.Router();
+const multer = require("multer");
+const upload = multer();
 const {
   addServiceProvider,
   getServiceProviders,
   updateServiceProvider,
-  deleteServiceProvider
+  deleteServiceProvider,
+  approveServiceProvider
 } = require('../controllers/serviceProviderController');
 const validateToken = require('../middleware/authMiddleware');
 
@@ -17,6 +20,7 @@ router.get('/serviceprovider/:id?', getServiceProviders);
 
 // Route to update an existing service provider
 router.put('/serviceprovider/:id', updateServiceProvider);
+router.put('/serviceprovider/approve/:id',upload.none(), approveServiceProvider);
 
 // Route to delete a service provider by ID
 router.delete('/serviceprovider/:id', deleteServiceProvider);

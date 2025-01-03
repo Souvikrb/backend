@@ -111,7 +111,7 @@ exports.updateServiceProvider = async (req, res) => {
 
         try {
             const { id } = req.params;
-            const { fullName, phone, email, about, country, city, location, category } = req.body;
+            const { fullName, phone, email, about, country, city, location, category,status } = req.body;
             // Check if the required fields are provided
             if (!fullName || !email || !phone) {
                 return res.status(400).json({ message: 'Full name, email, and phone are required' });
@@ -159,20 +159,51 @@ exports.updateServiceProvider = async (req, res) => {
 }
 
     // Delete a service provider by ID
-    exports.deleteServiceProvider = async (req, res) => {
+exports.deleteServiceProvider = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // Find the service provider by ID and delete it
+        const deletedServiceProvider = await ServiceProvider.findByIdAndDelete(id);
+
+        if (!deletedServiceProvider) {
+            return res.status(404).json({ message: 'Service provider not found' });
+        }
+
+        res.status(200).json({ message: 'Service provider deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting service provider:', error);
+        res.status(500).json({ message: 'Error deleting service provider', error: error.message });
+    }
+};
+
+exports.approveServiceProvider = async (req, res) => {
         try {
             const { id } = req.params;
+            const { status  } = req.body;
+            // Prepare update object
+            const updateData = {
+                status
+            };
+            // Find the service provider by ID and update it
+            const updatedServiceProvider = await ServiceProvider.findByIdAndUpdate(
+                id,
+                updateData,
+                { new: true } // Return the updated document
+            );
 
-            // Find the service provider by ID and delete it
-            const deletedServiceProvider = await ServiceProvider.findByIdAndDelete(id);
-
-            if (!deletedServiceProvider) {
-                return res.status(404).json({ message: 'Service provider not found' });
+            if (!updatedServiceProvider) {
+                return res.status(404).json({ message: "Service provider not found" });
             }
 
-            res.status(200).json({ message: 'Service provider deleted successfully' });
+            res.status(200).json({
+                message: "Change status successfully",
+                data: updatedServiceProvider,
+            });
         } catch (error) {
-            console.error('Error deleting service provider:', error);
-            res.status(500).json({ message: 'Error deleting service provider', error: error.message });
+            res.status(500).json({
+                message: "Error updating service provider",
+                error: error.message,
+            });
         }
-    };
+}
